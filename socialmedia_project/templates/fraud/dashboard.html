@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Fraud Dashboard - SocialApp{% endblock %}
+
+{% block content %}
+
+<h2 style="margin-bottom:20px; font-size:1.4rem;">
+    <i class="fa-solid fa-shield-halved" style="color:var(--primary)"></i>
+    Fraud Detection Dashboard
+</h2>
+
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_reports }}</div>
+        <div class="stat-label">Total Reports</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color:var(--warning);">{{ pending_reports }}</div>
+        <div class="stat-label">Pending Review</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color:var(--danger);">{{ auto_detected }}</div>
+        <div class="stat-label">Auto Detected</div>
+    </div>
+</div>
+
+<!-- FLAGGED POSTS -->
+<div class="section-title">
+    <i class="fa-solid fa-file-circle-exclamation" style="color:var(--danger)"></i>
+    Flagged Posts ({{ flagged_posts.count }})
+</div>
+
+{% if flagged_posts %}
+    {% for post in flagged_posts %}
+    <div class="report-item">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>@{{ post.author.username }}</strong>
+            <span class="flagged-badge">{{ post.get_category_display }}</span>
+        </div>
+        <p style="margin:6px 0; font-size:0.9rem;">{{ post.content|truncatechars:120 }}</p>
+        <div class="report-meta">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {{ post.flag_reason }} · {{ post.created_at|date:"d M Y, g:i a" }}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state" style="padding:30px;">
+        <i class="fa-solid fa-circle-check" style="color:var(--success)"></i>
+        <p>No flagged posts.</p>
+    </div>
+{% endif %}
+
+<!-- FLAGGED USERS -->
+<div class="section-title">
+    <i class="fa-solid fa-user-slash" style="color:var(--danger)"></i>
+    Flagged Accounts ({{ flagged_users.count }})
+</div>
+
+{% if flagged_users %}
+    {% for u in flagged_users %}
+    <div class="report-item">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="avatar" style="width:32px;height:32px;font-size:0.8rem;">
+                    {{ u.username|first|upper }}
+                </div>
+                <strong>@{{ u.username }}</strong>
+            </div>
+            <span class="flagged-badge">Flagged</span>
+        </div>
+        <div class="report-meta" style="margin-top:6px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {{ u.flag_reason }} · Joined {{ u.date_joined|date:"d M Y" }}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state" style="padding:30px;">
+        <i class="fa-solid fa-circle-check" style="color:var(--success)"></i>
+        <p>No flagged accounts.</p>
+    </div>
+{% endif %}
+
+<!-- ALL REPORTS -->
+<div class="section-title">
+    <i class="fa-solid fa-list" style="color:var(--primary)"></i>
+    All Reports ({{ total_reports }})
+</div>
+
+{% if reports %}
+    {% for report in reports %}
+    <div class="report-item">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>{{ report.get_report_type_display }} — {{ report.get_reason_display }}</strong>
+            <span class="post-category">{{ report.status }}</span>
+        </div>
+        <div class="report-meta" style="margin-top:4px;">
+            Reported by @{{ report.reported_by.username }}
+            {% if report.reported_user %} against @{{ report.reported_user.username }}{% endif %}
+            · {{ report.created_at|date:"d M Y, g:i a" }}
+            {% if report.auto_detected %}
+            · <span style="color:var(--danger); font-weight:700;">Auto-detected</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state" style="padding:30px;">
+        <i class="fa-regular fa-folder-open"></i>
+        <p>No reports yet.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

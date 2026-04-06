@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Report Post - SocialApp{% endblock %}
+
+{% block content %}
+<div style="max-width:500px; margin:0 auto;">
+    <div class="create-box">
+        <h2 style="margin-bottom:6px;">
+            <i class="fa-solid fa-flag" style="color:var(--danger)"></i>
+            Report Post
+        </h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
+            Help us keep SocialApp safe by reporting harmful content.
+        </p>
+
+        <div class="card" style="margin-bottom:20px; padding:14px 16px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <div class="avatar">{{ post.author.username|first|upper }}</div>
+                <div>
+                    <div class="post-author-name">{{ post.author.username }}</div>
+                    <span class="post-category">{{ post.get_category_display }}</span>
+                </div>
+            </div>
+            <p style="font-size:0.9rem;">{{ post.content }}</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Reason for reporting</label>
+                <select name="reason" class="form-select" required>
+                    <option value="">Select a reason</option>
+                    <option value="hate_speech">Hate Speech</option>
+                    <option value="abusive">Abusive Content</option>
+                    <option value="spam">Spam</option>
+                    <option value="irrelevant">Irrelevant Content</option>
+                    <option value="fake_account">Fake Account</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="misinformation">Misinformation</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Additional details (optional)</label>
+                <textarea name="description" class="form-textarea"
+                          placeholder="Describe the issue..." style="min-height:80px;"></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <a href="{% url 'posts:feed' %}" class="btn-outline"
+                   style="flex:1; text-align:center; padding:10px; text-decoration:none; border-radius:8px; font-weight:700;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger" style="flex:1;">
+                    Submit Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

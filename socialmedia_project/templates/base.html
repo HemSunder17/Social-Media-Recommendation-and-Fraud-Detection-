@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SocialApp{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="navbar">
+    <div class="nav-logo">
+        <i class="fa-solid fa-bolt"></i> SocialApp
+    </div>
+    <div class="nav-links">
+        <a href="{% url 'posts:feed' %}" class="nav-icon" title="Feed">
+            <i class="fa-solid fa-house"></i>
+        </a>
+        <a href="{% url 'posts:create_post' %}" class="nav-icon" title="Create Post">
+            <i class="fa-solid fa-plus-square"></i>
+        </a>
+        <a href="{% url 'accounts:interests' %}" class="nav-icon" title="My Interests">
+            <i class="fa-solid fa-heart"></i>
+        </a>
+        {% if user.is_superuser %}
+        <a href="{% url 'fraud:dashboard' %}" class="nav-icon" title="Fraud Dashboard">
+            <i class="fa-solid fa-shield-halved"></i>
+        </a>
+        {% endif %}
+        <a href="{% url 'accounts:profile' user.username %}" class="nav-icon" title="Profile">
+            <i class="fa-solid fa-user-circle"></i>
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="nav-icon" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+    </div>
+</nav>
+{% endif %}
+
+<div class="main-wrapper">
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                    <span class="alert-close" onclick="this.parentElement.remove()">×</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

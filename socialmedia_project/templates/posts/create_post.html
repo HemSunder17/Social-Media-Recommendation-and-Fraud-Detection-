@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Create Post - SocialApp{% endblock %}
+
+{% block content %}
+<div style="max-width:500px; margin:0 auto;">
+    <div class="create-box">
+        <h2>
+            <i class="fa-solid fa-plus-square" style="color:var(--primary)"></i>
+            Create New Post
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group" style="margin-top:20px;">
+                <label class="form-label">What's on your mind?</label>
+                <textarea name="content" class="form-textarea"
+                          placeholder="Write something..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select" required>
+                    <option value="">Select a category</option>
+                    {% for value, label in interests %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Image (optional)</label>
+                <input type="file" name="image" id="image-input"
+                       class="form-input" accept="image/*">
+                <img id="image-preview" src="#" alt="Preview"
+                     style="display:none; width:100%; border-radius:8px; margin-top:10px; max-height:300px; object-fit:cover;">
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-paper-plane"></i> Share Post
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Feed - SocialApp{% endblock %}
+
+{% block content %}
+
+{% csrf_token %}
+
+{% if not user.interests.exists %}
+<div class="card" style="padding:20px; text-align:center;">
+    <i class="fa-solid fa-heart" style="font-size:2rem; color:var(--primary); margin-bottom:10px; display:block;"></i>
+    <p style="margin-bottom:12px; font-weight:600;">You haven't selected any interests yet!</p>
+    <a href="{% url 'accounts:interests' %}" class="btn btn-primary" style="display:inline-block; width:auto; padding:10px 24px;">
+        Choose Interests
+    </a>
+</div>
+{% endif %}
+
+{% if posts %}
+    {% for post in posts %}
+    <div class="card">
+        <div class="post-header">
+            <a href="{% url 'accounts:profile' post.author.username %}" class="post-author">
+                <div class="avatar">{{ post.author.username|first|upper }}</div>
+                <div>
+                    <div class="post-author-name">{{ post.author.username }}</div>
+                    <span class="post-category">{{ post.get_category_display }}</span>
+                </div>
+            </a>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:0.8rem; color:var(--text-muted);">
+                    {{ post.created_at|date:"d M Y" }}
+                </span>
+                {% if post.author != user %}
+                <button class="report-btn action-btn" data-post-id="{{ post.id }}"
+                        title="Report post" style="font-size:1rem; color:var(--text-muted);">
+                    <i class="fa-solid fa-flag"></i>
+                </button>
+                {% endif %}
+                {% if post.author == user %}
+                <form method="POST" action="{% url 'posts:delete_post' post.id %}"
+                      onsubmit="return confirm('Delete this post?')">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn" style="font-size:1rem; color:var(--text-muted);">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if post.image %}
+        <div class="post-image">
+            <img src="{{ post.image.url }}" alt="post image">
+        </div>
+        {% endif %}
+
+        <div class="post-content">{{ post.content }}</div>
+
+        <div class="post-actions">
+            <button class="action-btn like-btn {% if post.id in liked_posts %}liked{% endif %}"
+                    data-post-id="{{ post.id }}">
+                <i class="{% if post.id in liked_posts %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                <span>{{ post.total_likes }}</span>
+            </button>
+
+            <button class="action-btn toggle-comments-btn" data-post-id="{{ post.id }}">
+                <i class="fa-regular fa-comment"></i>
+                <span>{{ post.total_comments }}</span>
+            </button>
+        </div>
+
+        <div class="post-meta">
+            {{ post.total_likes }} like{{ post.total_likes|pluralize }} ·
+            {{ post.created_at|date:"d M Y, g:i a" }}
+        </div>
+
+        <div class="comments-section" id="comments-{{ post.id }}" style="display:none;">
+            {% for comment in post.comments.all %}
+                {% if not comment.is_flagged %}
+                <div class="comment">
+                    <div class="avatar" style="width:28px;height:28px;font-size:0.7rem;flex-shrink:0;">
+                        {{ comment.user.username|first|upper }}
+                    </div>
+                    <div>
+                        <strong>{{ comment.user.username }}</strong>{{ comment.content }}
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+                <p style="color:var(--text-muted); font-size:0.85rem;">No comments yet.</p>
+            {% endfor %}
+
+            <form method="POST" action="{% url 'posts:add_comment' post.id %}" class="comment-form">
+                {% csrf_token %}
+                <input type="text" name="content" class="comment-input"
+                       placeholder="Add a comment..." required>
+                <button type="submit" class="comment-submit">Post</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <div class="empty-state">
+        <i class="fa-regular fa-newspaper"></i>
+        <p>No posts yet for your interests.</p>
+        <a href="{% url 'posts:create_post' %}" class="btn btn-primary"
+           style="display:inline-block; width:auto; padding:10px 24px;">
+            Create the first post
+        </a>
+    </div>
+{% endif %}
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="report-modal">
+    <div class="modal">
+        <h3><i class="fa-solid fa-flag" style="color:var(--danger)"></i> Report Post</h3>
+        <form method="POST" id="report-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Reason</label>
+                <select name="reason" class="form-select" required>
+                    <option value="">Select a reason</option>
+                    <option value="hate_speech">Hate Speech</option>
+                    <option value="abusive">Abusive Content</option>
+                    <option value="spam">Spam</option>
+                    <option value="irrelevant">Irrelevant Content</option>
+                    <option value="fake_account">Fake Account</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="misinformation">Misinformation</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-outline" id="cancel-report">Cancel</button>
+                <button type="submit" class="btn btn-danger" style="flex:1;">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

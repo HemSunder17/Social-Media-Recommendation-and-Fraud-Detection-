@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} - SocialApp{% endblock %}
+
+{% block content %}
+
+<div class="profile-header">
+    <div class="profile-avatar">
+        {{ profile_user.username|first|upper }}
+    </div>
+    <div class="profile-info">
+        <h2>{{ profile_user.username }}</h2>
+        {% if profile_user.bio %}
+            <p style="color:var(--text-muted); font-size:0.9rem;">{{ profile_user.bio }}</p>
+        {% endif %}
+
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <strong>{{ user_posts.count }}</strong>
+                <span>Posts</span>
+            </div>
+            <div class="profile-stat">
+                <strong>{{ profile_user.interests.count }}</strong>
+                <span>Interests</span>
+            </div>
+        </div>
+
+        {% if profile_user.interests.exists %}
+        <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:6px;">
+            {% for interest in profile_user.interests.all %}
+            <span class="post-category">{{ interest.name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if profile_user.is_flagged %}
+        <div style="margin-top:10px;">
+            <span class="flagged-badge">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Flagged Account
+            </span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if user_posts %}
+    {% for post in user_posts %}
+    <div class="card">
+        <div class="post-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="avatar">{{ post.author.username|first|upper }}</div>
+                <div>
+                    <div class="post-author-name">{{ post.author.username }}</div>
+                    <span class="post-category">{{ post.category }}</span>
+                </div>
+            </div>
+            <span style="font-size:0.8rem; color:var(--text-muted);">
+                {{ post.created_at|date:"d M Y" }}
+            </span>
+        </div>
+
+        {% if post.image %}
+        <div class="post-image">
+            <img src="{{ post.image.url }}" alt="post image">
+        </div>
+        {% endif %}
+
+        <div class="post-content">{{ post.content }}</div>
+
+        <div class="post-meta">
+            {{ post.total_likes }} likes · {{ post.total_comments }} comments
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <i class="fa-regular fa-image"></i>
+        <p>No posts yet.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

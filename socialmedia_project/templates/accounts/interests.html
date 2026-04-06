@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Choose Interests - SocialApp{% endblock %}
+
+{% block content %}
+<div style="max-width:500px; margin: 0 auto;">
+    <div class="create-box">
+        <h2 style="margin-bottom:6px;">
+            <i class="fa-solid fa-heart" style="color:var(--primary)"></i>
+            Choose Your Interests
+        </h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
+            Pick topics you love — we'll personalize your feed just for you.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="interests-grid">
+                {% for value, label in interests %}
+                <div class="interest-item">
+                    <input type="checkbox" name="interests"
+                           value="{{ value }}"
+                           id="interest_{{ value }}"
+                           {% if value in user_interest_names %}checked{% endif %}>
+                    <label class="interest-label" for="interest_{{ value }}">
+                        <span class="interest-icon">
+                            {% if value == 'cars' %}🚗
+                            {% elif value == 'dogs' %}🐶
+                            {% elif value == 'cats' %}🐱
+                            {% elif value == 'motivation' %}💪
+                            {% elif value == 'food' %}🍔
+                            {% elif value == 'travel' %}✈️
+                            {% elif value == 'technology' %}💻
+                            {% elif value == 'fitness' %}🏋️
+                            {% elif value == 'music' %}🎵
+                            {% elif value == 'art' %}🎨
+                            {% endif %}
+                        </span>
+                        {{ label }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">
+                Save Interests & Go to Feed
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
